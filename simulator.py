@@ -2,8 +2,8 @@ import argparse
 import hamiltonians
 import numpy as np
 import pandas as pd
-from config import K
 from fquite import FragmentedQuITE
+from multiprocessing import Pool
 
 
 parser = argparse.ArgumentParser()
@@ -11,19 +11,19 @@ parser.add_argument("--nqubits", default=2, type=int)
 parser.add_argument("--hamiltonian", default="maxcut", type=str)
 parser.add_argument("--maxbeta", default=300, type=int)
 parser.add_argument("--maxr", default=25, type=int)
-parser.add_argument("--trial", default=0, type=int)
+parser.add_argument("--trials", default=1, type=int)
 parser.add_argument("--output", default='./', type=str)
+parser.add_argument("--processes", default=1, type=int)
 args = vars(parser.parse_args())
 
 
-def main(nqubits, hamiltonian, maxbeta, maxr, trial, output):
-    """Main function for simulation."""
-
+def run(nqubits, hamiltonian, maxbeta, maxr, trial):
     # load hamiltonian
+    print('Trial', trial)
     np.random.seed(trial)
-    h = getattr(hamiltonians, hamiltonian)(nqubits)
-    energy = K.linalg.eigvalsh(h)
-    energy /= ((K.max(energy) - K.min(energy))/2)
+    h = np.array(getattr(hamiltonians, hamiltonian)(nqubits))
+    energy = np.linalg.eigvalsh(h)
+    energy /= ((np.max(energy) - np.min(energy))/2)
     del h
 
     # build frag quite obj
@@ -55,9 +55,20 @@ def main(nqubits, hamiltonian, maxbeta, maxr, trial, output):
             'F_fit_r': f_fit_r_best
         }
         result.append(obj)
+    return result
 
-    df = pd.DataFrame(result)
-    with open(f'{output}/{hamiltonian}_{nqubits}_{maxbeta}_{maxr}.csv', 'a') as f:
+
+def main(nqubits, hamiltonian, maxbeta, maxr, trials, output, processes):
+    """Main function for simulation.
+    """
+    jobs = [(nqubits, hamiltonian, maxbeta, maxr, t) for t in range(trials)]
+    with Pool(processes=processes) as p:
+        results = p.starmap(run, jobs)
+    df = pd.DataFrame()
+    for result in results:
+        df = df.append(result)
+    filename = f'{output}/{hamiltonian}_qubits_{nqubits}_maxbeta_{maxbeta}_maxr_{maxr}_trials_{trials}.csv'
+    with open(filename, 'a') as f:
         df.to_csv(f, header=f.tell()==0)
 
 

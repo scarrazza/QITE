@@ -1,4 +1,4 @@
-from config import K as np
+import numpy as np
 
 
 def Qu(beta, eps=1e-3, deltal=1):
