@@ -19,7 +19,7 @@ args = vars(parser.parse_args())
 
 def run(nqubits, hamiltonian, maxbeta, maxr, trial):
     # load hamiltonian
-    print('Trial', trial)
+    print(f'Trial {trial} - nqubits {nqubits}')
     np.random.seed(trial)
     h = np.array(getattr(hamiltonians, hamiltonian)(nqubits))
     energy = np.linalg.eigvalsh(h)
@@ -41,6 +41,7 @@ def run(nqubits, hamiltonian, maxbeta, maxr, trial):
         f, f_r_best, f_depth = frag.rF(beta, r_range)
         f_fit, f_fit_r_best, f_fit_depth = frag.rFfit(beta, r_range)
         obj = {
+            'nqubits': nqubits,
             'beta': beta,
             'trial': trial,
             'AA': aa,
@@ -73,5 +74,4 @@ def main(nqubits, hamiltonian, maxbeta, maxr, trials, output, processes):
 
 
 if __name__ == "__main__":
-    print(args)
     main(**args)
