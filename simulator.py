@@ -19,7 +19,7 @@ args = vars(parser.parse_args())
 
 def run(nqubits, hamiltonian, maxbeta, maxr, trial):
     # load hamiltonian
-    print(f'Trial {trial} - nqubits {nqubits}')
+    print(f'Ham {hamiltonian} - trial {trial} - nqubits {nqubits}')
     np.random.seed(trial)
     h = np.array(getattr(hamiltonians, hamiltonian)(nqubits))
     energy = np.linalg.eigvalsh(h)
