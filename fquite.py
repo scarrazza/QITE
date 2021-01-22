@@ -83,4 +83,4 @@ class FragmentedQuITE:
         f_depth = self.compute_query(params=params[f_r_best],
                                      schedule=schedule,
                                      r=f_r_best, b=beta, query_depth=True)
-        return f, f_r_best, f_depth
+        return f, f_r_best, f_depth, params[f_r_best]

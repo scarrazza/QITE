@@ -39,7 +39,7 @@ def run(nqubits, hamiltonian, maxbeta, maxr, trial):
         aa = frag.AA(beta, psuc)
         c = frag.C(beta, psuc)
         f, f_r_best, f_depth = frag.rF(beta, r_range)
-        f_fit, f_fit_r_best, f_fit_depth = frag.rFfit(beta, r_range)
+        f_fit, f_fit_r_best, f_fit_depth, params = frag.rFfit(beta, r_range)
         obj = {
             'nqubits': nqubits,
             'beta': beta,
@@ -53,7 +53,8 @@ def run(nqubits, hamiltonian, maxbeta, maxr, trial):
             'F_r': f_r_best,
             'F_fit': f_fit,
             'F_fit_depth': f_fit_depth,
-            'F_fit_r': f_fit_r_best
+            'F_fit_r': f_fit_r_best,
+            'F_fit_params': params
         }
         result.append(obj)
     return result
