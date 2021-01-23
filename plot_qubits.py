@@ -18,7 +18,7 @@ args = vars(parser.parse_args())
 
 def plot_band(axs, x, cv, std, label=None):
     axs.plot(x, cv, '.-',label=label)
-    axs.fill_between(x, cv-std, cv+std, alpha=0.1)
+    axs.fill_between(x, cv-std, cv+std, alpha=0.2)
 
 
 def main(filename, title, beta):
@@ -32,6 +32,7 @@ def main(filename, title, beta):
         raise RuntimeError("Requested beta not available.")
 
     data = data[data['beta'] == beta]
+    data = data.sort_values(by=['nqubits'])
     nqubits_range = data['nqubits'].unique()
     gdata = data.groupby(['nqubits'])
     means = gdata.mean()

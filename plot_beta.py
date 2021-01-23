@@ -24,6 +24,7 @@ def main(filename, title):
     """Main function for simulation.
     """
     data = pd.read_csv(filename)
+    data = data.sort_values(by=['beta'])
     beta_range = data['beta'].unique()
     gdata = data.groupby(['beta'])
     means = gdata.mean()
