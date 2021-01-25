@@ -40,7 +40,7 @@ def main(filename, title, beta):
 
     fig, axs = plt.subplots(3, 1, figsize=(5,7), sharex=True)
     fig.tight_layout(pad=0.0, w_pad=0.0, h_pad=0.0)
-    axs[0].set_title(title)
+    axs[0].set_title(rf'{title} - $\beta={beta}$')
     plot_band(axs[0], nqubits_range, means['F'], stds['F'], label='F linear')
     plot_band(axs[0], nqubits_range, means['F_fit'], stds['F_fit'], label='F fit')
     plot_band(axs[0], nqubits_range, means['AA'], stds['AA'], label='AA')
