@@ -43,6 +43,7 @@ def run(nqubits, hamiltonian, maxbeta, maxr, trial):
         f, f_r_best, f_depth = frag.rF(beta, r_range)
         f_fit, f_fit_r_best, f_fit_depth, params = frag.rFfit(beta, r_range)
         obj = {
+            'hamiltonian': hamiltonian,
             'nqubits': nqubits,
             'beta': beta,
             'trial': trial,

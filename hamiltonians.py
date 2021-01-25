@@ -30,14 +30,7 @@ def maxcut(nqubits, norm=40, random_graph=True):
 
 
 def weighted_maxcut(nqubits, norm=40, random_graph=True):
-    """Builds maxcut hamiltonian
-    weights = K.array([[0.5488135 , 0.71518937, 0.60276338, 0.54488318, 0.4236548 ],
-                       [0.64589411, 0.43758721, 0.891773  , 0.96366276, 0.38344152],
-                       [0.79172504, 0.52889492, 0.56804456, 0.92559664, 0.07103606],
-                       [0.0871293 , 0.0202184 , 0.83261985, 0.77815675, 0.87001215],
-                       [0.97861834, 0.79915856, 0.46147936, 0.78052918, 0.11827443]],
-                       dtype=dtype)
-    """
+    """Builds maxcut hamiltonian"""
     if random_graph:
         aa = np.random.randint(1, nqubits*(nqubits-1)/2+1)
         graph = nx.random_graphs.dense_gnm_random_graph(nqubits, aa)
@@ -55,7 +48,7 @@ def weighted_maxcut(nqubits, norm=40, random_graph=True):
                 else:
                     h = K.kron(h, I)
             w = dtype(np.random.uniform(0, 1))
-            M = w * (K.eye(2**nqubits, dtype=int) - h)
+            M = w * (K.eye(2**nqubits, dtype=np.bool) - h)
             if random_graph:
                 ham += V[i,j] * M
             else:
