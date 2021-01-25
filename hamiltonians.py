@@ -8,24 +8,26 @@ def maxcut(nqubits, norm=40, random_graph=True):
     if random_graph:
         aa = np.random.randint(1, nqubits*(nqubits-1)/2+1)
         graph = nx.random_graphs.dense_gnm_random_graph(nqubits, aa)
-        V = nx.adjacency_matrix(graph).toarray()
+        V = K.array(nx.adjacency_matrix(graph).toarray(), dtype=dtype)
 
     ham = K.zeros(shape=(2**nqubits,2**nqubits), dtype=dtype)
     Z = K.array([[1,0],[0,-1]], dtype=dtype)
     I = K.array([[1,0],[0,1]], dtype=dtype)
     for i in range(nqubits):
         for j in range(nqubits):
-            h = K.eye(1, dtype=int)
+            h = K.eye(1, dtype=np.bool)
             for k in range(nqubits):
                 if (k == i) ^ (k == j):
                     h = K.kron(h, Z)
                 else:
                     h = K.kron(h, I)
-            M = K.eye(2**nqubits, dtype=int) - h
+            M = K.eye(2**nqubits, dtype=np.bool) - h
             if random_graph:
                 ham += V[i,j] * M
             else:
                 ham += M
+            del M
+            del h
     return - 1/norm * ham
 
 

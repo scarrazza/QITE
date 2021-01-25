@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from fquite import FragmentedQuITE
 from multiprocessing import Pool
+from config import K, dtype
 
 
 parser = argparse.ArgumentParser()
@@ -21,7 +22,8 @@ def run(nqubits, hamiltonian, maxbeta, maxr, trial):
     # load hamiltonian
     print(f'Ham {hamiltonian} - trial {trial} - nqubits {nqubits}')
     np.random.seed(trial)
-    h = np.array(getattr(hamiltonians, hamiltonian)(nqubits))
+    h = np.array(getattr(hamiltonians, hamiltonian)(nqubits), dtype=dtype)
+    print(h, h.dtype)
     energy = np.linalg.eigvalsh(h)
     energy /= ((np.max(energy) - np.min(energy))/2)
     del h
