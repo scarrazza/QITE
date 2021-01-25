@@ -26,8 +26,6 @@ def maxcut(nqubits, norm=40, random_graph=True):
                 ham += V[i,j] * M
             else:
                 ham += M
-            del M
-            del h
     return - 1/norm * ham
 
 
