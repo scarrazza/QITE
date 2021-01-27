@@ -15,18 +15,25 @@ parser.add_argument("--maxr", default=25, type=int)
 parser.add_argument("--trials", default=1, type=int)
 parser.add_argument("--output", default='./', type=str)
 parser.add_argument("--processes", default=1, type=int)
+parser.add_argument("--gpu", action='store_true')
 args = vars(parser.parse_args())
 
 
-def run(nqubits, hamiltonian, maxbeta, maxr, trial):
-    # load hamiltonian
-    print(f'Ham {hamiltonian} - trial {trial} - nqubits {nqubits}')
+def get_energy(nqubits, hamiltonian, trial):
+    print(f'Hamiltonian: {hamiltonian} - trial: {trial} - nqubits: {nqubits}')
     np.random.seed(trial)
-    h = np.array(getattr(hamiltonians, hamiltonian)(nqubits), dtype=dtype)
+    h = np.asarray(getattr(hamiltonians, hamiltonian)(nqubits))
     print(h, h.dtype)
     energy = np.linalg.eigvalsh(h)
     energy /= ((np.max(energy) - np.min(energy))/2)
     del h
+    return energy
+
+
+def run(nqubits, hamiltonian, maxbeta, maxr, trial, energy=None):
+    # load hamiltonian
+    if energy is None:
+        energy = get_energy(nqubits, hamiltonian, trial)
 
     # build frag quite obj
     frag = FragmentedQuITE(nqubits, energy)
@@ -63,12 +70,23 @@ def run(nqubits, hamiltonian, maxbeta, maxr, trial):
     return result
 
 
-def main(nqubits, hamiltonian, maxbeta, maxr, trials, output, processes):
+def main(nqubits, hamiltonian, maxbeta, maxr, trials, output, processes, gpu):
     """Main function for simulation.
     """
-    jobs = [(nqubits, hamiltonian, maxbeta, maxr, t) for t in range(trials)]
-    with Pool(processes=processes) as p:
-        results = p.starmap(run, jobs)
+    if not gpu:
+        jobs = [(nqubits, hamiltonian, maxbeta, maxr, t) for t in range(trials)]
+        with Pool(processes=processes) as p:
+            results = p.starmap(run, jobs)
+    else:
+        pool = Pool(processes=processes)
+        results = []
+        for t in range(trials):
+            energy = get_energy(nqubits, hamiltonian, t)
+            pool.apply_async(
+                run, [nqubits, hamiltonian, maxbeta, maxr, t, energy],
+                callback=results.append)
+        pool.close()
+        pool.join()
     df = pd.DataFrame()
     for result in results:
         df = df.append(result)

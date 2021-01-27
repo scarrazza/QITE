@@ -1,10 +1,6 @@
 import os
 
-USE_JAX = False
-
-if USE_JAX:
-    from jax.config import config
-    config.update("jax_enable_x64", True)
+if 'USE_JAX' in os.environ:
     import jax.numpy as jnp
     K = jnp
     dtype = jnp.float32
