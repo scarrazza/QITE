@@ -53,34 +53,51 @@ class FragmentedQuITE:
     def AA(self, beta, Psbeta, alpha=1):
         return 1/np.sqrt(Psbeta) * self.query(beta=beta**alpha, eps=self.eps / 2 * np.sqrt(Psbeta), deltal=1)
 
-    def rF(self, beta, r_range):
+    def rF(self, beta):
         values = []
-        for r in r_range:
-            values.append(self.F(r, beta))
-        f_r_best = r_range[np.argmin(values)]
-        if f_r_best == r_range[-1]:
-            raise RuntimeError('Increase r_range max value.')
+        r_range = []
+        r = 2
+        tol = 0
+        while True:
+            val = self.F(r, beta)
+            if len(values) > 0:
+                if values[-1] < val:
+                    tol += 1
+                    if tol > 2:
+                        break
+            values.append(val)
+            r_range.append(r)
+            r += 1
         f = np.min(values)
+        f_r_best = r_range[np.argmin(values)]
         f_depth = self.compute_query(params=None, schedule=lambda t,_: t,
                                      r=f_r_best, b=beta, query_depth=True)
         return f, f_r_best, f_depth
 
-    def rFfit(self, beta, r_range):
+    def rFfit(self, beta):
         from scipy.optimize import minimize
         def schedule(t, params):
             return t**params[0]
         values = []
         params = []
-        for r in r_range:
+        r_range = []
+        r = 2
+        tol = 0
+        while True:
             m = minimize(lambda p, _: self.compute_query(p, schedule, r, beta),
                         [1.0], 'L-BFGS-B', bounds=[(1e-3, 1e3)])
+            if len(values) > 0:
+                if values[-1] < m.fun:
+                    tol += 1
+                    if tol > 2:
+                        break
             values.append(m.fun)
             params.append(m.x)
-        f_r_best = r_range[np.argmin(values)]
-        if f_r_best == r_range[-1]:
-            raise RuntimeError('rFfit Increase r_range max value.')
+            r_range.append(r)
+            r += 1
         f = np.min(values)
-        f_depth = self.compute_query(params=params[f_r_best],
+        f_r_best = r_range[np.argmin(values)]
+        f_depth = self.compute_query(params=params[np.argmin(values)],
                                      schedule=schedule,
                                      r=f_r_best, b=beta, query_depth=True)
-        return f, f_r_best, f_depth, params[f_r_best]
+        return f, f_r_best, f_depth, params[np.argmin(values)]

@@ -11,11 +11,11 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--nqubits", default=2, type=int)
 parser.add_argument("--hamiltonian", default="maxcut", type=str)
 parser.add_argument("--maxbeta", default=300, type=int)
-parser.add_argument("--maxr", default=25, type=int)
+parser.add_argument("--step", default=10, type=int)
 parser.add_argument("--trials", default=1, type=int)
 parser.add_argument("--output", default='./', type=str)
 parser.add_argument("--processes", default=1, type=int)
-parser.add_argument("--gpu", action='store_true')
+parser.add_argument("--gpu", action='store_true', help='computes hamiltonian in async with frag.')
 args = vars(parser.parse_args())
 
 
@@ -30,7 +30,7 @@ def get_energy(nqubits, hamiltonian, trial):
     return energy
 
 
-def run(nqubits, hamiltonian, maxbeta, maxr, trial, energy=None):
+def run(nqubits, hamiltonian, maxbeta, step, trial, energy=None):
     # load hamiltonian
     if energy is None:
         energy = get_energy(nqubits, hamiltonian, trial)
@@ -39,16 +39,15 @@ def run(nqubits, hamiltonian, maxbeta, maxr, trial, energy=None):
     frag = FragmentedQuITE(nqubits, energy)
 
     # TODO move to runcard
-    beta_range = range(2, maxbeta+1, 10)
-    r_range = range(2, maxr)
+    beta_range = range(2, maxbeta+1, step)
 
     result = []
     for beta in beta_range:
         psuc = frag.Psuc(beta)
         aa = frag.AA(beta, psuc)
         c = frag.C(beta, psuc)
-        f, f_r_best, f_depth = frag.rF(beta, r_range)
-        f_fit, f_fit_r_best, f_fit_depth, params = frag.rFfit(beta, r_range)
+        f, f_r_best, f_depth = frag.rF(beta)
+        f_fit, f_fit_r_best, f_fit_depth, params = frag.rFfit(beta)
         obj = {
             'hamiltonian': hamiltonian,
             'nqubits': nqubits,
@@ -70,11 +69,11 @@ def run(nqubits, hamiltonian, maxbeta, maxr, trial, energy=None):
     return result
 
 
-def main(nqubits, hamiltonian, maxbeta, maxr, trials, output, processes, gpu):
+def main(nqubits, hamiltonian, maxbeta, step, trials, output, processes, gpu):
     """Main function for simulation.
     """
     if not gpu:
-        jobs = [(nqubits, hamiltonian, maxbeta, maxr, t) for t in range(trials)]
+        jobs = [(nqubits, hamiltonian, maxbeta, step, t) for t in range(trials)]
         with Pool(processes=processes) as p:
             results = p.starmap(run, jobs)
     else:
@@ -83,14 +82,14 @@ def main(nqubits, hamiltonian, maxbeta, maxr, trials, output, processes, gpu):
         for t in range(trials):
             energy = get_energy(nqubits, hamiltonian, t)
             pool.apply_async(
-                run, [nqubits, hamiltonian, maxbeta, maxr, t, energy],
+                run, [nqubits, hamiltonian, maxbeta, step, t, energy],
                 callback=results.append)
         pool.close()
         pool.join()
     df = pd.DataFrame()
     for result in results:
         df = df.append(result)
-    filename = f'{output}/{hamiltonian}_qubits_{nqubits}_maxbeta_{maxbeta}_maxr_{maxr}_trials_{trials}.csv'
+    filename = f'{output}/{hamiltonian}_qubits_{nqubits}_maxbeta_{maxbeta}_step_{step}_trials_{trials}.csv'
     with open(filename, 'a') as f:
         df.to_csv(f, header=f.tell()==0)
 
