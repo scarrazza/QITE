@@ -11,7 +11,6 @@ plt.rc('axes', labelsize='large')
 
 parser = argparse.ArgumentParser()
 parser.add_argument("filename", default='', type=str)
-parser.add_argument("--title", default='', type=str)
 args = vars(parser.parse_args())
 
 
@@ -20,11 +19,13 @@ def plot_band(axs, x, cv, std, label=None):
     axs.fill_between(x, cv-std, cv+std, alpha=0.1)
 
 
-def main(filename, title):
+def main(filename):
     """Main function for simulation.
     """
     data = pd.read_csv(filename)
     data = data.sort_values(by=['beta'])
+    title = str(data["hamiltonian"].iloc[0]).replace('_', ' ') + \
+        ' - nqubits ' + str(data["nqubits"].iloc[0])
     beta_range = data['beta'].unique()
     gdata = data.groupby(['beta'])
     means = gdata.mean()
