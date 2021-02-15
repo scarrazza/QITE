@@ -1,5 +1,6 @@
 import argparse
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 
 plt.rc('text', usetex=True)
@@ -31,7 +32,7 @@ def main(filename):
     means = gdata.mean()
     stds = gdata.std()
 
-    fig, axs = plt.subplots(4, 1, figsize=(5,7), sharex=True)
+    fig, axs = plt.subplots(5, 1, figsize=(5,8), sharex=True)
     fig.tight_layout(pad=0.0, w_pad=0.0, h_pad=0.0)
     axs[0].set_title(title)
     plot_band(axs[0], beta_range, means['F'], stds['F'], label='F linear')
@@ -50,23 +51,36 @@ def main(filename):
     plot_band(axs[1], beta_range, means['C']/means['F'], stds['C']/means['F'])
 
     axs[1].set_ylim([0,2])
-    axs[1].set_ylabel('Ratio to F linear');
+    axs[1].set_ylabel('Ratio to F linear')
 
-    axs[2].set_ylabel('Query depth');
-    axs[2].set_yscale('log')
+    plot_band(axs[2], beta_range, np.array([ (data[data['beta'] == b]['F']/data[data['beta'] == b]['F']).mean() for b in beta_range]),
+                                  np.array([ (data[data['beta'] == b]['F']/data[data['beta'] == b]['F']).std() for b in beta_range]))
+    plot_band(axs[2], beta_range, np.array([ (data[data['beta'] == b]['F_fit']/data[data['beta'] == b]['F']).mean() for b in beta_range]),
+                                  np.array([ (data[data['beta'] == b]['F_fit']/data[data['beta'] == b]['F']).std() for b in beta_range]))
 
-    plot_band(axs[2], beta_range, means['F_depth'], stds['F_depth'], label='F linear')
-    plot_band(axs[2], beta_range, means['F_fit_depth'], stds['F_fit_depth'], label='F fit')
-    plot_band(axs[2], beta_range, means['AA'], stds['AA'], label='AA')
-    plot_band(axs[2], beta_range, means['C_depth'], stds['C_depth'], label='C')
+    plot_band(axs[2], beta_range, np.array([ (data[data['beta'] == b]['AA']/data[data['beta'] == b]['F']).mean() for b in beta_range]),
+                                  np.array([ (data[data['beta'] == b]['AA']/data[data['beta'] == b]['F']).std() for b in beta_range]))
+    plot_band(axs[2], beta_range, np.array([ (data[data['beta'] == b]['C']/data[data['beta'] == b]['F']).mean() for b in beta_range]),
+                                  np.array([ (data[data['beta'] == b]['C']/data[data['beta'] == b]['F']).std() for b in beta_range]))
 
-    axs[2].legend(frameon=False, ncol=2)
+    axs[2].set_ylim([0,2])
+    axs[2].set_ylabel('Ratio to F linear\n(sync)')
 
-    plot_band(axs[3], beta_range, means['F_r'], stds['F_r'], label='F linear')
-    plot_band(axs[3], beta_range, means['F_fit_r'], stds['F_fit_r'], 'F fit')
+    axs[3].set_ylabel('Query depth');
+    axs[3].set_yscale('log')
 
-    axs[3].set_xlabel(r'$\beta$')
-    axs[3].set_ylabel('Best $r$')
+    plot_band(axs[3], beta_range, means['F_depth'], stds['F_depth'], label='F linear')
+    plot_band(axs[3], beta_range, means['F_fit_depth'], stds['F_fit_depth'], label='F fit')
+    plot_band(axs[3], beta_range, means['AA'], stds['AA'], label='AA')
+    plot_band(axs[3], beta_range, means['C_depth'], stds['C_depth'], label='C')
+
+    axs[3].legend(frameon=False, ncol=2)
+
+    plot_band(axs[4], beta_range, means['F_r'], stds['F_r'], label='F linear')
+    plot_band(axs[4], beta_range, means['F_fit_r'], stds['F_fit_r'], 'F fit')
+
+    axs[4].set_xlabel(r'$\beta$')
+    axs[4].set_ylabel('Best $r$')
 
     output = filename.replace('.csv', '.pdf')
     print(f'Saving {output}')

@@ -1,5 +1,6 @@
 import argparse
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 
 plt.rc('text', usetex=True)
@@ -11,8 +12,6 @@ plt.rc('axes', labelsize='large')
 
 parser = argparse.ArgumentParser()
 parser.add_argument("filename", nargs='+', type=str)
-parser.add_argument("--beta", default=202, type=int)
-parser.add_argument("--title", default='', type=str)
 args = vars(parser.parse_args())
 
 
@@ -21,54 +20,70 @@ def plot_band(axs, x, cv, std, label=None):
     axs.fill_between(x, cv-std, cv+std, alpha=0.2)
 
 
-def main(filename, title, beta):
+def main(filename):
     """Main function for simulation.
     """
-    data = pd.DataFrame()
+    odata = pd.DataFrame()
     for f in filename:
-        data = data.append(pd.read_csv(f))
+        odata = odata.append(pd.read_csv(f))
 
-    if beta not in data['beta'].unique():
-        raise RuntimeError("Requested beta not available.")
+    beta_range = odata['beta'].unique()
 
-    data = data[data['beta'] == beta]
-    data = data.sort_values(by=['nqubits'])
-    nqubits_range = data['nqubits'].unique()
-    gdata = data.groupby(['nqubits'])
-    means = gdata.mean()
-    stds = gdata.std()
+    for beta in beta_range:
+        data = odata[odata['beta'] == beta]
+        data = data.sort_values(by=['nqubits'])
 
-    fig, axs = plt.subplots(3, 1, figsize=(5,7), sharex=True)
-    fig.tight_layout(pad=0.0, w_pad=0.0, h_pad=0.0)
-    axs[0].set_title(rf'{title} - $\beta={beta}$')
-    plot_band(axs[0], nqubits_range, means['F'], stds['F'], label='F linear')
-    plot_band(axs[0], nqubits_range, means['F_fit'], stds['F_fit'], label='F fit')
-    plot_band(axs[0], nqubits_range, means['AA'], stds['AA'], label='AA')
-    plot_band(axs[0], nqubits_range, means['C'], stds['C'], label='C')
+        title = str(data["hamiltonian"].iloc[0]).replace('_', ' ') + ' - $\\beta$=' + str(beta)
 
-    axs[0].set_yscale('log')
-    axs[0].legend(frameon=False, ncol=2)
-    axs[0].set_ylabel('Query complexity')
+        nqubits_range = data['nqubits'].unique()
+        gdata = data.groupby(['nqubits'])
+        means = gdata.mean()
+        stds = gdata.std()
 
-    plot_band(axs[1], nqubits_range, means['F']/means['F'], stds['F']/means['F'])
-    plot_band(axs[1], nqubits_range, means['F_fit']/means['F'], stds['F_fit']/means['F'])
+        fig, axs = plt.subplots(4, 1, figsize=(5,7), sharex=True)
+        fig.tight_layout(pad=0.0, w_pad=0.0, h_pad=0.0)
+        axs[0].set_title(title)
+        plot_band(axs[0], nqubits_range, means['F'], stds['F'], label='F linear')
+        plot_band(axs[0], nqubits_range, means['F_fit'], stds['F_fit'], label='F fit')
+        plot_band(axs[0], nqubits_range, means['AA'], stds['AA'], label='AA')
+        plot_band(axs[0], nqubits_range, means['C'], stds['C'], label='C')
 
-    plot_band(axs[1], nqubits_range, means['AA']/means['F'], stds['AA']/means['F'])
-    plot_band(axs[1], nqubits_range, means['C']/means['F'], stds['C']/means['F'])
+        axs[0].set_yscale('log')
+        axs[0].legend(frameon=False, ncol=2)
+        axs[0].set_ylabel('Query complexity')
 
-    axs[1].set_ylim([0,2])
-    axs[1].set_ylabel('Ratio to F linear');
+        plot_band(axs[1], nqubits_range, means['F']/means['F'], stds['F']/means['F'])
+        plot_band(axs[1], nqubits_range, means['F_fit']/means['F'], stds['F_fit']/means['F'])
 
-    axs[2].legend(frameon=False, ncol=2)
-    axs[2].set_xlabel(r'nqubits')
-    axs[2].set_ylabel('Best $r$')
+        plot_band(axs[1], nqubits_range, means['AA']/means['F'], stds['AA']/means['F'])
+        plot_band(axs[1], nqubits_range, means['C']/means['F'], stds['C']/means['F'])
 
-    plot_band(axs[2], nqubits_range, means['F_r'], stds['F_r'], label='F linear')
-    plot_band(axs[2], nqubits_range, means['F_fit_r'], stds['F_fit_r'], 'F fit')
+        axs[1].set_ylim([0,2])
+        axs[1].set_ylabel('Ratio to F linear');
 
-    output = filename[0].replace('.csv','_qubits.pdf')
-    print(f'Saving {output}')
-    plt.savefig(f"{output}", bbox_inches='tight')
+        plot_band(axs[2], nqubits_range, np.array([ (data[data['nqubits'] == b]['F']/data[data['nqubits'] == b]['F']).mean() for b in nqubits_range]),
+                                        np.array([ (data[data['nqubits'] == b]['F']/data[data['nqubits'] == b]['F']).std() for b in nqubits_range]))
+        plot_band(axs[2], nqubits_range, np.array([ (data[data['nqubits'] == b]['F_fit']/data[data['nqubits'] == b]['F']).mean() for b in nqubits_range]),
+                                        np.array([ (data[data['nqubits'] == b]['F_fit']/data[data['nqubits'] == b]['F']).std() for b in nqubits_range]))
+
+        plot_band(axs[2], nqubits_range, np.array([ (data[data['nqubits'] == b]['AA']/data[data['nqubits'] == b]['F']).mean() for b in nqubits_range]),
+                                        np.array([ (data[data['nqubits'] == b]['AA']/data[data['nqubits'] == b]['F']).std() for b in nqubits_range]))
+        plot_band(axs[2], nqubits_range, np.array([ (data[data['nqubits'] == b]['C']/data[data['nqubits'] == b]['F']).mean() for b in nqubits_range]),
+                                        np.array([ (data[data['nqubits'] == b]['C']/data[data['nqubits'] == b]['F']).std() for b in nqubits_range]))
+
+        axs[2].set_ylim([0,2])
+        axs[2].set_ylabel('Ratio to F linear\n(sync)')
+
+        axs[3].legend(frameon=False, ncol=2)
+        axs[3].set_xlabel(r'nqubits')
+        axs[3].set_ylabel('Best $r$')
+
+        plot_band(axs[3], nqubits_range, means['F_r'], stds['F_r'], label='F linear')
+        plot_band(axs[3], nqubits_range, means['F_fit_r'], stds['F_fit_r'], 'F fit')
+
+        output = str(data["hamiltonian"].iloc[0]) + '_beta_' + str(beta) + '.pdf'
+        print(f'Saving {output}')
+        plt.savefig(f"{output}", bbox_inches='tight')
 
 
 if __name__ == "__main__":
