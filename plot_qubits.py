@@ -40,7 +40,7 @@ def main(filename):
         means = gdata.mean()
         stds = gdata.std()
 
-        fig, axs = plt.subplots(4, 1, figsize=(5,7), sharex=True)
+        fig, axs = plt.subplots(3, 1, figsize=(5,6), sharex=True)
         fig.tight_layout(pad=0.0, w_pad=0.0, h_pad=0.0)
         axs[0].set_title(title)
         plot_band(axs[0], nqubits_range, means['F'], stds['F'], label='F linear')
@@ -52,34 +52,34 @@ def main(filename):
         axs[0].legend(frameon=False, ncol=2)
         axs[0].set_ylabel('Query complexity')
 
-        plot_band(axs[1], nqubits_range, means['F']/means['F'], stds['F']/means['F'])
-        plot_band(axs[1], nqubits_range, means['F_fit']/means['F'], stds['F_fit']/means['F'])
+        # plot_band(axs[1], nqubits_range, means['F']/means['F'], stds['F']/means['F'])
+        # plot_band(axs[1], nqubits_range, means['F_fit']/means['F'], stds['F_fit']/means['F'])
 
-        plot_band(axs[1], nqubits_range, means['AA']/means['F'], stds['AA']/means['F'])
-        plot_band(axs[1], nqubits_range, means['C']/means['F'], stds['C']/means['F'])
+        # plot_band(axs[1], nqubits_range, means['AA']/means['F'], stds['AA']/means['F'])
+        # plot_band(axs[1], nqubits_range, means['C']/means['F'], stds['C']/means['F'])
 
-        axs[1].set_ylim([0,2])
-        axs[1].set_ylabel('Ratio to F linear');
+        # axs[1].set_ylim([0,2])
+        # axs[1].set_ylabel('Ratio to F linear');
 
-        plot_band(axs[2], nqubits_range, np.array([ (data[data['nqubits'] == b]['F']/data[data['nqubits'] == b]['F']).mean() for b in nqubits_range]),
+        plot_band(axs[1], nqubits_range, np.array([ (data[data['nqubits'] == b]['F']/data[data['nqubits'] == b]['F']).mean() for b in nqubits_range]),
                                         np.array([ (data[data['nqubits'] == b]['F']/data[data['nqubits'] == b]['F']).std() for b in nqubits_range]))
-        plot_band(axs[2], nqubits_range, np.array([ (data[data['nqubits'] == b]['F_fit']/data[data['nqubits'] == b]['F']).mean() for b in nqubits_range]),
+        plot_band(axs[1], nqubits_range, np.array([ (data[data['nqubits'] == b]['F_fit']/data[data['nqubits'] == b]['F']).mean() for b in nqubits_range]),
                                         np.array([ (data[data['nqubits'] == b]['F_fit']/data[data['nqubits'] == b]['F']).std() for b in nqubits_range]))
 
-        plot_band(axs[2], nqubits_range, np.array([ (data[data['nqubits'] == b]['AA']/data[data['nqubits'] == b]['F']).mean() for b in nqubits_range]),
+        plot_band(axs[1], nqubits_range, np.array([ (data[data['nqubits'] == b]['AA']/data[data['nqubits'] == b]['F']).mean() for b in nqubits_range]),
                                         np.array([ (data[data['nqubits'] == b]['AA']/data[data['nqubits'] == b]['F']).std() for b in nqubits_range]))
-        plot_band(axs[2], nqubits_range, np.array([ (data[data['nqubits'] == b]['C']/data[data['nqubits'] == b]['F']).mean() for b in nqubits_range]),
+        plot_band(axs[1], nqubits_range, np.array([ (data[data['nqubits'] == b]['C']/data[data['nqubits'] == b]['F']).mean() for b in nqubits_range]),
                                         np.array([ (data[data['nqubits'] == b]['C']/data[data['nqubits'] == b]['F']).std() for b in nqubits_range]))
 
-        axs[2].set_ylim([0,2])
-        axs[2].set_ylabel('Ratio to F linear\n(sync)')
+        axs[1].set_ylim([0,2])
+        axs[1].set_ylabel('Ratio to F linear')
 
-        axs[3].legend(frameon=False, ncol=2)
-        axs[3].set_xlabel(r'nqubits')
-        axs[3].set_ylabel('Best $r$')
+        axs[2].legend(frameon=False, ncol=2)
+        axs[2].set_xlabel(r'nqubits')
+        axs[2].set_ylabel('Best $r$')
 
-        plot_band(axs[3], nqubits_range, means['F_r'], stds['F_r'], label='F linear')
-        plot_band(axs[3], nqubits_range, means['F_fit_r'], stds['F_fit_r'], 'F fit')
+        plot_band(axs[2], nqubits_range, means['F_r'], stds['F_r'], label='F linear')
+        plot_band(axs[2], nqubits_range, means['F_fit_r'], stds['F_fit_r'], 'F fit')
 
         output = str(data["hamiltonian"].iloc[0]) + '_beta_' + str(beta) + '.pdf'
         print(f'Saving {output}')
