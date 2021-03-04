@@ -2,6 +2,8 @@ import argparse
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
+
 
 plt.rc('text', usetex=True)
 plt.rc('text.latex', preamble=r'\usepackage{siunitx}')
@@ -40,6 +42,13 @@ def main(filename):
     plt.title(title)
     plt.plot(nqubits_range, cv, 'o--')
     plt.xlabel('nqubits')
+
+    def exponential(x, a, b):
+        return a*np.exp(b*x)
+    pars, cov = curve_fit(f=exponential, xdata=nqubits_range, ydata=cv)
+    plt.plot(nqubits_range, exponential(nqubits_range, *pars), label=f'$\\beta_c(n) = {pars[0]:.2f} \cdot \exp[ {pars[1]:.2f} \cdot n]$')
+
+    plt.legend(frameon=False)
 
     output = str(odata["hamiltonian"].iloc[0]) + '_betac.pdf'
     print(f'Saving {output}')
