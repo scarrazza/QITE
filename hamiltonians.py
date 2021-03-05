@@ -93,3 +93,27 @@ def rbm(nqubits, jmax=0.1):
                 h = K.kron(h, I)
         ham -= c[i] * h
     return ham
+
+
+def heisenberg(nqubits, norm=40, jmax=0.1, random_graph=True):
+    """Builds heisenberg hamiltonian"""
+    if random_graph:
+        V = dtype(np.random.uniform(0, jmax, nqubits))
+
+    ham = K.zeros(shape=(2**nqubits,2**nqubits), dtype=dtype)
+    Z = K.array([[1,0],[0,-1]], dtype=dtype)
+    I = K.array([[1,0],[0,1]], dtype=dtype)
+    for i in range(nqubits):
+        h = K.eye(1, dtype=dtype)
+        for j in range(nqubits):
+            if i in {j % nqubits, (j+1) % nqubits}:
+                h = K.kron(h, Z)
+            else:
+                h = K.kron(h, I)
+        w = dtype(np.random.uniform(0, 1))
+        M = w * (K.eye(2**nqubits, dtype=dtype) - h)
+        if random_graph:
+           ham += V[i] * M
+        else:
+           ham += M
+    return - 1/norm * ham
