@@ -37,16 +37,22 @@ def main(filename):
         rmean = np.abs(np.array([ (1 - data[data['beta'] == b]['AA']/data[data['beta'] == b]['F_fit']).mean() for b in beta_range]))
         cv.append(beta_range[np.argmin(rmean)])
 
-    title = str(odata["hamiltonian"].iloc[0]).replace('_', ' ') + ' - $\\beta_c$'
+    title = str(odata["hamiltonian"].iloc[0]).replace('_', ' ') + ' - $\\beta_c(n)$'
 
     plt.title(title)
-    plt.plot(nqubits_range, cv, 'o--')
+    plt.plot(nqubits_range, cv, 'o')
     plt.xlabel('nqubits')
 
     def exponential(x, a, b):
         return a*np.exp(b*x)
+    def base2(x, a, b):
+        return a * 2**(b*x)
+
     pars, cov = curve_fit(f=exponential, xdata=nqubits_range, ydata=cv)
-    plt.plot(nqubits_range, exponential(nqubits_range, *pars), label=f'$\\beta_c(n) = {pars[0]:.2f} \cdot \exp[ {pars[1]:.2f} \cdot n]$')
+    plt.plot(nqubits_range, exponential(nqubits_range, *pars), label=f'$\\beta_c(n) = {pars[0]:.2f} \cdot e^{{ {pars[1]:.2f} \cdot n}}$')
+
+    pars, cov = curve_fit(f=base2, xdata=nqubits_range, ydata=cv)
+    plt.plot(nqubits_range, base2(nqubits_range, *pars), '--', label=f'$\\beta_c(n) = {pars[0]:.2f} \cdot 2^{{ {pars[1]:.2f} \cdot n}}$')
 
     plt.legend(frameon=False)
 
