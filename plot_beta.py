@@ -82,7 +82,7 @@ def main(filename):
     axs[3].set_xlabel(r'$\beta$')
     axs[3].set_ylabel('Best $r$')
 
-    output = filename.replace('.csv', '.pdf')
+    output = filename.replace('.csv', '.pdf').split('/')[-1]
     print(f'Saving {output}')
     plt.savefig(f"{output}", bbox_inches='tight')
 
