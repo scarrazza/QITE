@@ -95,25 +95,26 @@ def rbm(nqubits, jmax=0.1):
     return ham
 
 
-def heisenberg(nqubits, norm=40, jmax=0.1, random_graph=True):
+def heisenberg(nqubits, norm=40):
     """Builds heisenberg hamiltonian"""
-    if random_graph:
-        V = dtype(np.random.uniform(0, jmax, nqubits))
-
     ham = K.zeros(shape=(2**nqubits,2**nqubits), dtype=dtype)
+    X = K.array([[0,1],[1,0]], dtype=dtype)
     Z = K.array([[1,0],[0,-1]], dtype=dtype)
     I = K.array([[1,0],[0,1]], dtype=dtype)
     for i in range(nqubits):
-        h = K.eye(1, dtype=dtype)
+        hx = K.eye(1, dtype=dtype)
         for j in range(nqubits):
             if i in {j % nqubits, (j+1) % nqubits}:
-                h = K.kron(h, Z)
+                hx = K.kron(hx, X)
             else:
-                h = K.kron(h, I)
-        w = dtype(np.random.uniform(0, 1))
-        M = w * (K.eye(2**nqubits, dtype=dtype) - h)
-        if random_graph:
-           ham += V[i] * M
-        else:
-           ham += M
+                hx = K.kron(hx, I)
+        hz = K.eye(1, dtype=dtype)
+        for j in range(nqubits):
+            if i in {j % nqubits, (j+1) % nqubits}:
+                hz = K.kron(hz, Z)
+            else:
+                hz = K.kron(hz, I)
+        w = dtype(np.random.uniform(-1, 1))
+        M = w * (hx  + 0.5 * hz)
+        ham += M
     return - 1/norm * ham
