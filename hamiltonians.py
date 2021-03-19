@@ -118,3 +118,30 @@ def heisenberg(nqubits, norm=40):
         M = w * (hx  + 0.5 * hz)
         ham += M
     return - 1/norm * ham
+
+
+def heisenberg_fully_connected(nqubits, norm=40, random_graph=True):
+    """Builds maxcut hamiltonian"""
+    ham = K.zeros(shape=(2**nqubits,2**nqubits), dtype=dtype)
+    X = K.array([[0,1],[1,0]], dtype=dtype)
+    Z = K.array([[1,0],[0,-1]], dtype=dtype)
+    I = K.array([[1,0],[0,1]], dtype=dtype)
+    for i in range(nqubits):
+        for j in range(nqubits):
+            hx = K.eye(1, dtype=dtype)
+            for k in range(nqubits):
+                if (k == i) ^ (k == j):
+                    hx = K.kron(hx, X)
+                else:
+                    hx = K.kron(hx, I)
+            hz = K.eye(1, dtype=dtype)
+            for k in range(nqubits):
+                if (k == i) ^ (k == j):
+                    hz = K.kron(hz, Z)
+                else:
+                    hz = K.kron(hz, I)
+            w = dtype(np.random.uniform(-1, 1))
+            M = w * (hx + 0.5 * hz)
+            if i != j:
+                ham += M
+    return - 1/norm * ham
