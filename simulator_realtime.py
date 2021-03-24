@@ -2,7 +2,7 @@ import argparse
 import hamiltonians
 import numpy as np
 import pandas as pd
-from fquite import FragmentedQuITE
+from fquite_realtime import FragmentedQuITE, gamma_opt
 from multiprocessing import Pool
 from config import K, dtype
 
@@ -43,11 +43,14 @@ def run(nqubits, hamiltonian, maxbeta, step, trial, energy=None):
 
     result = []
     for beta in beta_range:
-        psuc = frag.Psuc(beta)
-        aa = frag.AA(beta, psuc)
-        c = frag.C(beta, psuc)
-        f, f_r_best, f_depth = frag.rF(beta)
-        f_fit, f_fit_r_best, f_fit_depth, params = frag.rFfit(beta)
+        gammaAA = gamma_opt(beta, AA=True)
+        gamma = gamma_opt(beta)
+        psucAA = frag.Psuc(beta, gammaAA)
+        psuc = frag.Psuc(beta, gamma)
+        aa = frag.AA(beta, psucAA, gammaAA)
+        c = frag.C(beta, psuc, gamma)
+        f, f_r_best, f_depth = frag.rF(beta, gamma)
+        f_fit, f_fit_r_best, f_fit_depth, params = frag.rFfit(beta, gamma)
         obj = {
             'hamiltonian': hamiltonian,
             'nqubits': nqubits,
