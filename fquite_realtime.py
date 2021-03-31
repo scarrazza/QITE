@@ -12,6 +12,10 @@ def Qu(beta, gamma, eps=1e-3):
     return 2.0 * (beta/gamma + 1.0) * np.log(4.0/eps)
 
 
+def alpha_beta(beta):
+    return np.exp(-gamma_opt(beta)) / 2.0
+
+
 class FragmentedQuITE:
     def __init__(self, nqubits, energy, eps=1e-3):
         """Test function for optimization."""
@@ -21,28 +25,39 @@ class FragmentedQuITE:
         self.query = Qu
         self.eps = eps
 
-    def compute_query(self, params, schedule, r, b, gamma, query_depth=False):
+    def compute_query(self, params, schedule, r, b, query_depth=False):
         """Compute query optimization."""
         beta = np.array([ b * schedule(step/r, params) for step in range(1, r+1)])
+        alphab = alpha_beta(b)
+        DeltaBeta = np.diff(beta)
 
         # k == 0
         PsucBr = self.Psuc(beta[r-1], gamma_opt(beta[r-1]))
-        eps_prime = self.eps / (2 * 4.0**(r-1)) * np.sqrt(PsucBr)
-        Sigma = self.query(beta[0]-0, gamma_opt(beta[0]-0), eps=eps_prime)
+        prod = 0
+        prod2 = 0
+        for k in range(r-1):
+            prod *= alpha_beta(DeltaBeta[k])
+            prod2 *= alpha_beta(DeltaBeta[k])**2
+        eps_prime = self.eps / (2 * 4.0**(r-1)) * np.sqrt(PsucBr) * prod / alphab
+        Sigma = self.query(beta[0]-0, gamma_opt(beta[0]-0), eps=eps_prime) / alpha_beta(beta[0])**2 / prod2
 
         # k > 0
-        DeltaBeta = np.diff(beta)
         for k in range(r-1):
             PsucBk = 1
             if not query_depth:
                 PsucBk = self.Psuc(beta[k], gamma_opt(beta[k]))
-            eps_prime = self.eps / 4.0**(r-(k+1)) * np.sqrt(PsucBr/PsucBk)
-            Sigma += PsucBk * self.query(DeltaBeta[k], gamma_opt(DeltaBeta[k]), eps=eps_prime)
+            prod = 0
+            prod2 = 0
+            for j in range(k, r-1):
+                prod *= alpha_beta(DeltaBeta[j])
+                prod2 *= alpha_beta(DeltaBeta[j])**2
+            eps_prime = self.eps / 4.0**(r-(k+1)) * np.sqrt(PsucBr/PsucBk) * prod * alpha_beta(beta[k]) / alphab
+            Sigma += PsucBk * self.query(DeltaBeta[k], gamma_opt(DeltaBeta[k]), eps=eps_prime) / alpha_beta(beta[k])**2 / prod2
 
         Psbeta = 1
         if not query_depth:
             Psbeta = self.Psuc(beta[r-1], gamma_opt(beta[r-1]))
-        return 1/Psbeta * Sigma
+        return 1/Psbeta * Sigma * alphab**2
 
     def Psuc(self, beta, gamma):
         Zt =  np.sum(np.exp(-beta * (self.E - self.Emin)))
@@ -51,7 +66,7 @@ class FragmentedQuITE:
 
     def F(self, r, beta, gamma):
         """Return linear query prediction."""
-        return self.compute_query(params=None, schedule=lambda t, _: t, r=r, b=beta, gamma=gamma)
+        return self.compute_query(params=None, schedule=lambda t, _: t, r=r, b=beta)
 
     def C(self, beta, Psbeta, gamma, alpha=1):
         bquery = self.query(beta=beta**alpha, gamma=gamma, eps=self.eps / 2 * np.sqrt(Psbeta))
@@ -78,7 +93,7 @@ class FragmentedQuITE:
         f = np.min(values)
         f_r_best = r_range[np.argmin(values)]
         f_depth = self.compute_query(params=None, schedule=lambda t,_: t,
-                                     r=f_r_best, b=beta, gamma=gamma, query_depth=True)
+                                     r=f_r_best, b=beta, query_depth=True)
         return f, f_r_best, f_depth
 
     def rFfit(self, beta, gamma):
@@ -91,7 +106,7 @@ class FragmentedQuITE:
         r = 2
         tol = 0
         while True:
-            m = minimize(lambda p, _: self.compute_query(p, schedule, r, beta, gamma),
+            m = minimize(lambda p, _: self.compute_query(p, schedule, r, beta),
                         [1.0], 'L-BFGS-B', bounds=[(1e-3, 100)])
             if len(values) > 0:
                 if values[-1] < m.fun:
@@ -106,5 +121,5 @@ class FragmentedQuITE:
         f_r_best = r_range[np.argmin(values)]
         f_depth = self.compute_query(params=params[np.argmin(values)],
                                      schedule=schedule,
-                                     r=f_r_best, b=beta, gamma=gamma, query_depth=True)
+                                     r=f_r_best, b=beta, query_depth=True)
         return f, f_r_best, f_depth, params[np.argmin(values)]
