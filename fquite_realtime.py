@@ -33,21 +33,21 @@ class FragmentedQuITE:
 
         # k == 0
         PsucBr = self.Psuc(beta[r-1], gamma_opt(beta[r-1]))
-        prod = 0
-        prod2 = 0
+        prod = 1
+        prod2 = 1
         for k in range(r-1):
             prod *= alpha_beta(DeltaBeta[k])
             prod2 *= alpha_beta(DeltaBeta[k])**2
         eps_prime = self.eps / (2 * 4.0**(r-1)) * np.sqrt(PsucBr) * prod / alphab
-        Sigma = self.query(beta[0]-0, gamma_opt(beta[0]-0), eps=eps_prime) / alpha_beta(beta[0])**2 / prod2
+        Sigma = self.query(beta[0]-0, gamma_opt(beta[0]-0), eps=eps_prime) / prod2
 
         # k > 0
         for k in range(r-1):
             PsucBk = 1
             if not query_depth:
                 PsucBk = self.Psuc(beta[k], gamma_opt(beta[k]))
-            prod = 0
-            prod2 = 0
+            prod = 1
+            prod2 = 1
             for j in range(k, r-1):
                 prod *= alpha_beta(DeltaBeta[j])
                 prod2 *= alpha_beta(DeltaBeta[j])**2
