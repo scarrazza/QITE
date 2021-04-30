@@ -33,8 +33,8 @@ class FragmentedQuITE:
 
         # k == 0
         PsucBr = self.Psuc(beta[r-1], gamma_opt(beta[r-1]))
-        prod = 1
-        prod2 = 1
+        prod = alpha_beta(beta[0]-0)
+        prod2 = alpha_beta(beta[0]-0)**2
         for k in range(r-1):
             prod *= alpha_beta(DeltaBeta[k])
             prod2 *= alpha_beta(DeltaBeta[k])**2
