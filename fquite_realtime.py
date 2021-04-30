@@ -33,13 +33,15 @@ class FragmentedQuITE:
 
         # k == 0
         PsucBr = self.Psuc(beta[r-1], gamma_opt(beta[r-1]))
-        prod = 1
-        prod2 = 1
+        prod = alpha_beta(beta[0])
+        prod2 = alpha_beta(beta[0])**2
         for k in range(r-1):
             prod *= alpha_beta(DeltaBeta[k])
             prod2 *= alpha_beta(DeltaBeta[k])**2
         eps_prime = self.eps / (2 * 4.0**(r-1)) * np.sqrt(PsucBr) * prod / alphab
-        Sigma = self.query(beta[0]-0, gamma_opt(beta[0]-0), eps=eps_prime) / prod2
+        Sigma = self.query(beta[0]-0, gamma_opt(beta[0]-0), eps=eps_prime) 
+        if not query_depth:
+            Sigma = Sigma / prod2
 
         # k > 0
         for k in range(r-1):
@@ -52,11 +54,16 @@ class FragmentedQuITE:
                 prod *= alpha_beta(DeltaBeta[j])
                 prod2 *= alpha_beta(DeltaBeta[j])**2
             eps_prime = self.eps / 4.0**(r-(k+1)) * np.sqrt(PsucBr/PsucBk) * prod * alpha_beta(beta[k]) / alphab
-            Sigma += PsucBk * self.query(DeltaBeta[k], gamma_opt(DeltaBeta[k]), eps=eps_prime) / alpha_beta(beta[k])**2 / prod2
+            if query_depth:
+                Sigma += PsucBk * self.query(DeltaBeta[k], gamma_opt(DeltaBeta[k]), eps=eps_prime)
+            else:
+                Sigma += PsucBk * self.query(DeltaBeta[k], gamma_opt(DeltaBeta[k]), eps=eps_prime) / alpha_beta(beta[k])**2 / prod2
 
-        Psbeta = 1
+            
+        Psbeta = self.Psuc(beta[r-1], gamma_opt(beta[r-1]))
         if not query_depth:
-            Psbeta = self.Psuc(beta[r-1], gamma_opt(beta[r-1]))
+            Psbeta = 1
+            alphab = 1
         return 1/Psbeta * Sigma * alphab**2
 
     def Psuc(self, beta, gamma):
