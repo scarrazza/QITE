@@ -9,7 +9,7 @@ def gamma_opt(beta, AA=False):
 
 
 def Qu(beta, gamma, eps=1e-3):
-    return 2.0 * (beta/gamma + 1.0) * np.log(4.0/eps)
+    return np.ceil(2.0 * (beta/gamma + 1.0) * np.log(4.0/eps))
 
 
 def alpha_beta(beta):
@@ -33,13 +33,15 @@ class FragmentedQuITE:
 
         # k == 0
         PsucBr = self.Psuc(beta[r-1], gamma_opt(beta[r-1]))
-        prod = alpha_beta(beta[0]-0)
-        prod2 = alpha_beta(beta[0]-0)**2
+        prod = alpha_beta(beta[0])
+        prod2 = alpha_beta(beta[0])**2
         for k in range(r-1):
             prod *= alpha_beta(DeltaBeta[k])
             prod2 *= alpha_beta(DeltaBeta[k])**2
         eps_prime = self.eps / (2 * 4.0**(r-1)) * np.sqrt(PsucBr) * prod / alphab
-        Sigma = self.query(beta[0]-0, gamma_opt(beta[0]-0), eps=eps_prime) / prod2
+        Sigma = self.query(beta[0]-0, gamma_opt(beta[0]-0), eps=eps_prime) 
+        if not query_depth:
+            Sigma = self.query(beta[0]-0, gamma_opt(beta[0]-0), eps=eps_prime) / prod2
 
         # k > 0
         for k in range(r-1):
@@ -52,7 +54,10 @@ class FragmentedQuITE:
                 prod *= alpha_beta(DeltaBeta[j])
                 prod2 *= alpha_beta(DeltaBeta[j])**2
             eps_prime = self.eps / 4.0**(r-(k+1)) * np.sqrt(PsucBr/PsucBk) * prod * alpha_beta(beta[k]) / alphab
-            Sigma += PsucBk * self.query(DeltaBeta[k], gamma_opt(DeltaBeta[k]), eps=eps_prime) / alpha_beta(beta[k])**2 / prod2
+            if query_depth:
+                Sigma += PsucBk * self.query(DeltaBeta[k], gamma_opt(DeltaBeta[k]), eps=eps_prime)
+            if not query_depth:
+               Sigma += PsucBk * self.query(DeltaBeta[k], gamma_opt(DeltaBeta[k]), eps=eps_prime) / alpha_beta(beta[k])**2 / prod2
 
         Psbeta = 1
         if not query_depth:
@@ -99,22 +104,32 @@ class FragmentedQuITE:
     def rFfit(self, beta, gamma):
         from scipy.optimize import minimize
         def schedule(t, params):
-            return t**params[0]
+            return t**params
         values = []
         params = []
         r_range = []
         r = 2
         tol = 0
         while True:
-            m = minimize(lambda p, _: self.compute_query(p, schedule, r, beta),
-                        [1.0], 'L-BFGS-B', bounds=[(1e-3, 100)])
+            #m = minimize(lambda p, _: self.compute_query(p, schedule, r, beta),  [1.5], 'L-BFGS-B', bounds=[(1e-3, 100)])
+            vale = []
+            for m in range(2,50):
+                pu = m
+                valor = self.compute_query(pu, schedule, r, beta)
+                vale.append(valor)
+            val = np.min(vale)
+            p = np.argmin(vale)
+           # val=self.compute_query(p, schedule, r, beta)
             if len(values) > 0:
-                if values[-1] < m.fun:
+                #if values[-1] < m.fun:
+                if values[-1] < val:
                     tol += 1
                     if tol > 2:
-                        break
-            values.append(m.fun)
-            params.append(m.x)
+                       break
+            #values.append(m.fun)
+            #params.append(m.x)            
+            values.append(val)
+            params.append(p)
             r_range.append(r)
             r += 1
         f = np.min(values)
