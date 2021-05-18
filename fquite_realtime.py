@@ -61,7 +61,7 @@ class FragmentedQuITE:
 
             
         Psbeta = self.Psuc(beta[r-1], gamma_opt(beta[r-1]))
-        if not query_depth:
+        if query_depth:
             Psbeta = 1
             alphab = 1
         return 1/Psbeta * Sigma * alphab**2
