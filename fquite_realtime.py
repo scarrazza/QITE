@@ -39,7 +39,7 @@ class FragmentedQuITE:
             prod *= alpha_beta(DeltaBeta[k])
             prod2 *= alpha_beta(DeltaBeta[k])**2
         eps_prime = self.eps / (2 * 4.0**(r-1)) * np.sqrt(PsucBr) * prod / alphab
-        Sigma = self.query(beta[0]-0, gamma_opt(beta[0]-0), eps=eps_prime) 
+        Sigma = self.query(beta[0]-0, gamma_opt(beta[0]-0), eps=eps_prime)
         if not query_depth:
             Sigma = Sigma / prod2
 
@@ -59,7 +59,7 @@ class FragmentedQuITE:
             else:
                 Sigma += PsucBk * self.query(DeltaBeta[k], gamma_opt(DeltaBeta[k]), eps=eps_prime) / alpha_beta(beta[k])**2 / prod2
 
-            
+
         Psbeta = self.Psuc(beta[r-1], gamma_opt(beta[r-1]))
         if query_depth:
             Psbeta = 1
@@ -114,7 +114,7 @@ class FragmentedQuITE:
         tol = 0
         while True:
             m = minimize(lambda p, _: self.compute_query(p, schedule, r, beta),
-                        [1.0], 'L-BFGS-B', bounds=[(1e-3, 100)])
+                        [1.0], 'BFGS')
             if len(values) > 0:
                 if values[-1] < m.fun:
                     tol += 1
