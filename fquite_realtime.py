@@ -13,7 +13,7 @@ def Qu(beta, gamma, eps=1e-3):
 
 
 def alpha_beta(beta):
-    return np.exp(-gamma_opt(beta)) / 2.0
+    return np.exp(-gamma_opt(beta))
 
 
 class FragmentedQuITE:
@@ -69,7 +69,7 @@ class FragmentedQuITE:
     def Psuc(self, beta, gamma):
         Zt =  np.sum(np.exp(-beta * (self.E - self.Emin)))
         N = 2**self.n
-        return Zt / N * np.exp(-2.0 * gamma) / 4.0
+        return Zt / N * np.exp(-2.0 * gamma)
 
     def F(self, r, beta, gamma):
         """Return linear query prediction."""
