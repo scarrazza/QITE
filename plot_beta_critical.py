@@ -47,12 +47,17 @@ def main(filename):
         return a*np.exp(b*x)
     def base2(x, a, b):
         return a * 2**(b*x)
+    def leandro(x, a, b, c):
+        return c + a * np.exp(b*x)
 
     pars, cov = curve_fit(f=exponential, xdata=nqubits_range, ydata=cv)
     plt.plot(nqubits_range, exponential(nqubits_range, *pars), label=f'$\\beta_c(n) = {pars[0]:.2f} \cdot e^{{ {pars[1]:.2f} \cdot n}}$')
 
     pars, cov = curve_fit(f=base2, xdata=nqubits_range, ydata=cv)
     plt.plot(nqubits_range, base2(nqubits_range, *pars), '--', label=f'$\\beta_c(n) = {pars[0]:.2f} \cdot 2^{{ {pars[1]:.2f} \cdot n}}$')
+
+    pars, cov = curve_fit(f=leandro, xdata=nqubits_range, ydata=cv)
+    plt.plot(nqubits_range, leandro(nqubits_range, *pars), '--', label=f'$\\beta_c(n) = {pars[0]:.2f} \cdot 2^{{ {pars[1]:.2f} \cdot n}} + {pars[2]:.2f}$')
 
     plt.legend(frameon=False)
 
