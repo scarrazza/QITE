@@ -151,13 +151,14 @@ def do_fit(filenames):
             fig.tight_layout(pad=0.0, w_pad=0.0, h_pad=0.0)
             axs[0].set_title(title)
 
-        def fun(x, a, b):
-            return a * x ** b
+        fix_b = 0.32
+        def fun(x, a):
+            return a * x ** fix_b
 
         pars, cov = curve_fit(f=fun, xdata=beta_range, ydata=means['F_r'])
         rmse = np.sqrt(np.mean(np.square(fun(beta_range, *pars) - means['F_r'])))
         plot_band(axs[0], beta_range, means['F_r'], stds['F_r'], label=f'{str(data["nqubits"].iloc[0])} qubits')
-        axs[0].plot(beta_range, fun(beta_range, *pars), '--', color=colors[index], label=f'${pars[0]:.2f} \cdot \\beta^{{ {pars[1]:.2f}}}$\n(RMSE={rmse:.2f})')
+        axs[0].plot(beta_range, fun(beta_range, *pars), '--', color=colors[index], label=f'${pars[0]:.2f} \cdot \\beta^{{ {fix_b:.2f}}}$\n(RMSE={rmse:.2f})')
 
         axs[0].legend(frameon=False, ncol=3, prop={'size': 7})
         axs[0].set_ylabel('$r$ (uniform)')
@@ -176,7 +177,7 @@ def do_fit(filenames):
         rmse = np.sqrt(np.mean(np.square(fun(beta_range[1:], *pars) - cv_params[1:])))
 
         plot_band(axs[2], beta_range[1:], cv_params[1:], std_params[1:])
-        axs[2].plot(beta_range[1:], fun(beta_range[1:], *pars), ':', color=colors[index], label=f'${pars[0]:.2f} \cdot \\beta^{{ {pars[1]:.2f}}}$\n(RMSE={rmse:.2f})')
+        axs[2].plot(beta_range[1:], fun(beta_range[1:], *pars), ':', color=colors[index], label=f'${pars[0]:.2f} \cdot \\beta^{{ {fix_b:.2f}}}$\n(RMSE={rmse:.2f})')
 
         axs[2].set_ylabel('$a$')
         axs[2].set_xlabel(r'$\beta$')
