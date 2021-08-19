@@ -26,7 +26,7 @@ def do_beta(filename, show_ylabel=True):
         title = 'Weighted MaxCut'
     elif data["hamiltonian"].iloc[0] == 'rbm':
         title = 'Quantum RBMs'
-    elif data["hamiltonian"].iloc[0] == 'heisenberg':
+    elif data["hamiltonian"].iloc[0] == 'heisenberg_fully_connected':
         title = 'Quantum spin glasses'
     elif str(data["hamiltonian"].iloc[0]) == 'maxcut':
         title = 'MaxCut'
@@ -84,7 +84,7 @@ def do_critical(filename, skip=False, show_ylabel=True):
         title = 'Weighted MaxCut'
     elif str(odata["hamiltonian"].iloc[0]) == 'rbm':
         title = 'Quantum RBMs'
-    elif str(odata["hamiltonian"].iloc[0]) == 'heisenberg':
+    elif str(odata["hamiltonian"].iloc[0]) == 'heisenberg_fully_connected':
         title = 'Quantum spin glasses'
     elif str(odata["hamiltonian"].iloc[0]) == 'maxcut':
         title = 'MaxCut'
@@ -141,7 +141,7 @@ def do_fit(filenames):
             title = 'Weighted MaxCut'
         elif str(data["hamiltonian"].iloc[0]) == 'rbm':
             title = 'Quantum RBMs'
-        elif str(data["hamiltonian"].iloc[0]) == 'heisenberg':
+        elif str(data["hamiltonian"].iloc[0]) == 'heisenberg_fully_connected':
             title = 'Quantum spin glasses'
         elif str(data["hamiltonian"].iloc[0]) == 'maxcut':
             title = 'MaxCut'
@@ -248,39 +248,39 @@ if __name__ == "__main__":
         'results/2002/rbm/rbm_qubits_14_maxbeta_2002_step_25_trials_100.csv'
         ]
     do_critical(rbm_files, show_ylabel=True)
-    do_beta('results/2002/heisenberg/heisenberg_qubits_12_maxbeta_2002_step_25_trials_1000.csv', show_ylabel=False)
-    heisenberg_files = [
-        'results/2002/heisenberg/heisenberg_qubits_2_maxbeta_2002_step_25_trials_1000.csv',
-        'results/2002/heisenberg/heisenberg_qubits_3_maxbeta_2002_step_25_trials_1000.csv',
-        'results/2002/heisenberg/heisenberg_qubits_4_maxbeta_2002_step_25_trials_1000.csv',
-        'results/2002/heisenberg/heisenberg_qubits_5_maxbeta_2002_step_25_trials_1000.csv',
-        'results/2002/heisenberg/heisenberg_qubits_6_maxbeta_2002_step_25_trials_1000.csv',
-        'results/2002/heisenberg/heisenberg_qubits_7_maxbeta_2002_step_25_trials_1000.csv',
-        'results/2002/heisenberg/heisenberg_qubits_8_maxbeta_2002_step_25_trials_1000.csv',
-        'results/2002/heisenberg/heisenberg_qubits_9_maxbeta_2002_step_25_trials_1000.csv',
-        'results/2002/heisenberg/heisenberg_qubits_10_maxbeta_2002_step_25_trials_1000.csv',
-        'results/2002/heisenberg/heisenberg_qubits_11_maxbeta_2002_step_25_trials_1000.csv',
-        'results/2002/heisenberg/heisenberg_qubits_12_maxbeta_2002_step_25_trials_1000.csv',
-        'results/2002/heisenberg/heisenberg_qubits_13_maxbeta_2002_step_25_trials_1000.csv',
-        'results/2002/heisenberg/heisenberg_qubits_14_maxbeta_2002_step_25_trials_100.csv',
-        'results/2002/heisenberg/heisenberg_qubits_15_maxbeta_2002_step_25_trials_100.csv'
-        ]
-    do_critical(heisenberg_files, skip=True, show_ylabel=False)
-    # do_beta('results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_12_maxbeta_2002_step_25_trials_1000.csv')
-    # heisenberg_fully_connected_files = [
-    #     'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_2_maxbeta_2002_step_25_trials_1000.csv',
-    #     'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_3_maxbeta_2002_step_25_trials_1000.csv',
-    #     'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_4_maxbeta_2002_step_25_trials_1000.csv',
-    #     'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_5_maxbeta_2002_step_25_trials_1000.csv',
-    #     'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_6_maxbeta_2002_step_25_trials_1000.csv',
-    #     'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_7_maxbeta_2002_step_25_trials_1000.csv',
-    #     'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_8_maxbeta_2002_step_25_trials_1000.csv',
-    #     'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_9_maxbeta_2002_step_25_trials_1000.csv',
-    #     'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_10_maxbeta_2002_step_25_trials_1000.csv',
-    #     'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_11_maxbeta_2002_step_25_trials_1000.csv',
-    #     'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_12_maxbeta_2002_step_25_trials_1000.csv',
-    #     'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_13_maxbeta_2002_step_25_trials_1000.csv',
-    #     'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_14_maxbeta_2002_step_25_trials_100.csv',
-    #     'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_15_maxbeta_2002_step_25_trials_100.csv'
+    # do_beta('results/2002/heisenberg/heisenberg_qubits_12_maxbeta_2002_step_25_trials_1000.csv', show_ylabel=False)
+    # heisenberg_files = [
+    #     'results/2002/heisenberg/heisenberg_qubits_2_maxbeta_2002_step_25_trials_1000.csv',
+    #     'results/2002/heisenberg/heisenberg_qubits_3_maxbeta_2002_step_25_trials_1000.csv',
+    #     'results/2002/heisenberg/heisenberg_qubits_4_maxbeta_2002_step_25_trials_1000.csv',
+    #     'results/2002/heisenberg/heisenberg_qubits_5_maxbeta_2002_step_25_trials_1000.csv',
+    #     'results/2002/heisenberg/heisenberg_qubits_6_maxbeta_2002_step_25_trials_1000.csv',
+    #     'results/2002/heisenberg/heisenberg_qubits_7_maxbeta_2002_step_25_trials_1000.csv',
+    #     'results/2002/heisenberg/heisenberg_qubits_8_maxbeta_2002_step_25_trials_1000.csv',
+    #     'results/2002/heisenberg/heisenberg_qubits_9_maxbeta_2002_step_25_trials_1000.csv',
+    #     'results/2002/heisenberg/heisenberg_qubits_10_maxbeta_2002_step_25_trials_1000.csv',
+    #     'results/2002/heisenberg/heisenberg_qubits_11_maxbeta_2002_step_25_trials_1000.csv',
+    #     'results/2002/heisenberg/heisenberg_qubits_12_maxbeta_2002_step_25_trials_1000.csv',
+    #     'results/2002/heisenberg/heisenberg_qubits_13_maxbeta_2002_step_25_trials_1000.csv',
+    #     'results/2002/heisenberg/heisenberg_qubits_14_maxbeta_2002_step_25_trials_100.csv',
+    #     'results/2002/heisenberg/heisenberg_qubits_15_maxbeta_2002_step_25_trials_100.csv'
     #     ]
-    # do_critical(heisenberg_fully_connected_files, skip=True, show_ylabel=False)
+    # do_critical(heisenberg_files, skip=True, show_ylabel=False)
+    do_beta('results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_12_maxbeta_2002_step_25_trials_1000.csv')
+    heisenberg_fully_connected_files = [
+        'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_2_maxbeta_2002_step_25_trials_1000.csv',
+        'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_3_maxbeta_2002_step_25_trials_1000.csv',
+        'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_4_maxbeta_2002_step_25_trials_1000.csv',
+        'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_5_maxbeta_2002_step_25_trials_1000.csv',
+        'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_6_maxbeta_2002_step_25_trials_1000.csv',
+        'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_7_maxbeta_2002_step_25_trials_1000.csv',
+        'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_8_maxbeta_2002_step_25_trials_1000.csv',
+        'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_9_maxbeta_2002_step_25_trials_1000.csv',
+        'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_10_maxbeta_2002_step_25_trials_1000.csv',
+        'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_11_maxbeta_2002_step_25_trials_1000.csv',
+        'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_12_maxbeta_2002_step_25_trials_1000.csv',
+        'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_13_maxbeta_2002_step_25_trials_1000.csv',
+        'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_14_maxbeta_2002_step_25_trials_100.csv',
+        'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_15_maxbeta_2002_step_25_trials_100.csv'
+        ]
+    do_critical(heisenberg_fully_connected_files, skip=True, show_ylabel=False)
