@@ -16,6 +16,7 @@ parser.add_argument("--trials", default=1, type=int)
 parser.add_argument("--output", default='./', type=str)
 parser.add_argument("--processes", default=1, type=int)
 parser.add_argument("--gpu", action='store_true', help='computes hamiltonian in async with frag.')
+parser.add_argument("--eps", default=1e-3, type=float)
 args = vars(parser.parse_args())
 
 
@@ -30,13 +31,13 @@ def get_energy(nqubits, hamiltonian, trial):
     return energy
 
 
-def run(nqubits, hamiltonian, maxbeta, step, trial, energy=None):
+def run(nqubits, hamiltonian, maxbeta, step, trial, eps, energy=None):
     # load hamiltonian
     if energy is None:
         energy = get_energy(nqubits, hamiltonian, trial)
 
     # build frag quite obj
-    frag = FragmentedQuITE(nqubits, energy)
+    frag = FragmentedQuITE(nqubits, energy, eps)
 
     # TODO move to runcard
     beta_range = range(2, maxbeta+1, step)
@@ -69,11 +70,11 @@ def run(nqubits, hamiltonian, maxbeta, step, trial, energy=None):
     return result
 
 
-def main(nqubits, hamiltonian, maxbeta, step, trials, output, processes, gpu):
+def main(nqubits, hamiltonian, maxbeta, step, trials, output, processes, gpu, eps):
     """Main function for simulation.
     """
     if not gpu:
-        jobs = [(nqubits, hamiltonian, maxbeta, step, t) for t in range(trials)]
+        jobs = [(nqubits, hamiltonian, maxbeta, step, t, eps) for t in range(trials)]
         with Pool(processes=processes) as p:
             results = p.starmap(run, jobs)
     else:
@@ -82,7 +83,7 @@ def main(nqubits, hamiltonian, maxbeta, step, trials, output, processes, gpu):
         for t in range(trials):
             energy = get_energy(nqubits, hamiltonian, t)
             pool.apply_async(
-                run, [nqubits, hamiltonian, maxbeta, step, t, energy],
+                run, [nqubits, hamiltonian, maxbeta, step, t, eps, energy],
                 callback=results.append)
         pool.close()
         pool.join()
