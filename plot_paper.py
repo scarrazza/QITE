@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+from matplotlib.ticker import MaxNLocator
 
 # plt.rc('text', usetex=True)
 # plt.rc('text.latex', preamble=r'\usepackage{siunitx}')
@@ -89,7 +90,8 @@ def do_critical(filename, skip=False, show_ylabel=True):
     elif str(odata["hamiltonian"].iloc[0]) == 'maxcut':
         title = 'MaxCut'
 
-    plt.figure(figsize=(4,2.5))
+    ff = plt.figure(figsize=(4,2.5))
+    ff.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.title(title)
     plt.plot(nqubits_range, cv, 'o')
     plt.xlabel('$N$')
@@ -245,7 +247,8 @@ if __name__ == "__main__":
         'results/2002/rbm/rbm_qubits_11_maxbeta_2002_step_25_trials_1000.csv',
         'results/2002/rbm/rbm_qubits_12_maxbeta_2002_step_25_trials_1000.csv',
         'results/2002/rbm/rbm_qubits_13_maxbeta_2002_step_25_trials_1000.csv',
-        'results/2002/rbm/rbm_qubits_14_maxbeta_2002_step_25_trials_100.csv'
+        'results/2002/rbm/rbm_qubits_14_maxbeta_2002_step_25_trials_100.csv',
+        'results/10002/rbm/rbm_qubits_15_maxbeta_10002_step_500_trials_100.csv'
         ]
     do_critical(rbm_files, show_ylabel=True)
     # do_beta('results/2002/heisenberg/heisenberg_qubits_12_maxbeta_2002_step_25_trials_1000.csv', show_ylabel=False)
@@ -281,6 +284,7 @@ if __name__ == "__main__":
         'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_12_maxbeta_2002_step_25_trials_1000.csv',
         'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_13_maxbeta_2002_step_25_trials_1000.csv',
         'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_14_maxbeta_2002_step_25_trials_100.csv',
-        'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_15_maxbeta_2002_step_25_trials_100.csv'
+        #'results/2002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_15_maxbeta_2002_step_25_trials_100.csv'
+        'results/10002/heisenberg_fully_connected/heisenberg_fully_connected_qubits_15_maxbeta_10002_step_500_trials_100.csv'
         ]
-    do_critical(heisenberg_fully_connected_files, skip=True, show_ylabel=False)
+    do_critical(heisenberg_fully_connected_files, show_ylabel=False)
