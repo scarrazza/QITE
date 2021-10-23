@@ -4,6 +4,8 @@ Imaginary-time evolution algorithms for intermediate-scale quantum signal proces
 
 ## This repository
 
+This repository contains the prototype code for imaginary-time evolution scheduling optimization.
+The scripts `simulator.py` and `simulator_realtime.py` are the starting point for the simulation and optimization procedure.
 
 ## Citation policy
 
